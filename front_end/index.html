@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gate Pass – Event tickets and venues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ECEEF4;--card:#fff;--ink:#161B33;--muted:#5B6180;--line:#D5D9E6;--accent:#C2185B;--accent-ink:#fff;--ok:#0E7C7B;--warn:#9A6700;--bad:#B42318;--r:14px}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1224;--card:#1A1F3A;--ink:#EEF0FA;--muted:#9AA1C4;--line:#2D3459;--accent:#F0508A;--accent-ink:#1A0A12;--ok:#4FD1C5;--warn:#E3B341;--bad:#FF8A80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,h3,.brand{font-family:"Bricolage Grotesque",Figtree,sans-serif;margin:0;letter-spacing:-.01em}
+h1{font-size:2rem;font-weight:800}h3{font-size:1.15rem;font-weight:700}
+p{margin:.25rem 0}.muted{color:var(--muted)}small{color:var(--muted)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{font:600 .95rem Figtree,sans-serif;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:.6rem 1rem;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.sm{padding:.35rem .7rem;font-size:.85rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.55rem .75rem;width:100%}
+label{display:block;font-weight:600;font-size:.9rem;margin:.75rem 0 .25rem}
+.top{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;align-items:center;padding:.8rem 1.5rem;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{font-weight:800;font-size:1.3rem;color:var(--accent)}
+.top nav{display:flex;gap:.25rem;flex:1;flex-wrap:wrap}
+.top nav a{padding:.4rem .8rem;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:600}
+.top nav a[aria-current=page]{background:var(--bg);color:var(--ink)}
+.who{display:flex;gap:.75rem;align-items:center;font-size:.9rem}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+.head{display:flex;justify-content:space-between;align-items:end;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem}.bar>*{flex:1 1 160px;width:auto}.bar input[type=search]{flex:2 1 240px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.25rem}
+.ticket{background:var(--card);border-radius:var(--r);border:1px solid var(--line);display:flex;flex-direction:column;position:relative}
+.ticket .main{padding:1.1rem 1.1rem 1rem;flex:1}
+.ticket .stub{padding:1rem 1.1rem;border-top:2px dashed var(--line);position:relative;display:grid;gap:.5rem}
+.ticket .stub::before,.ticket .stub::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--line)}
+.ticket .stub::before{left:-11px;clip-path:inset(0 0 0 50%)}.ticket .stub::after{right:-11px;clip-path:inset(0 50% 0 0)}
+.price{font:800 1.4rem "Bricolage Grotesque",sans-serif}
+.meter{height:6px;background:var(--bg);border-radius:9px;overflow:hidden}.meter i{display:block;height:100%;background:var(--accent)}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}.row.end{justify-content:flex-end}
+.badge{display:inline-block;font-size:.8rem;font-weight:600;padding:.1rem .6rem;border-radius:99px;border:1px solid currentColor}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.neutral{color:var(--muted)}
+.tablewrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.85rem;color:var(--muted);font-weight:600}tr:last-child td{border-bottom:0}
+.pager{display:flex;justify-content:center;align-items:center;gap:1rem;margin-top:1.25rem}
+.empty{padding:2.5rem 1rem;text-align:center;color:var(--muted)}
+dialog{border:0;border-radius:var(--r);padding:1.5rem;width:min(480px,94vw);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(10,12,30,.55)}
+.err{color:var(--bad);min-height:1.2rem;font-weight:500}
+#toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);display:grid;gap:.5rem;z-index:10;width:min(440px,92vw)}
+.t{background:var(--ink);color:var(--bg);padding:.7rem 1rem;border-radius:10px;font-weight:500}.t.e{background:var(--bad);color:#fff}
+.login{min-height:100vh;display:grid;place-items:center;padding:1rem}
+.login .ticket{width:min(420px,100%)}
+.login h1{font-size:2.6rem;line-height:1;margin-bottom:.5rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:560px){.two{grid-template-columns:1fr}main{padding:1rem}}
+@media (prefers-reduced-motion:no-preference){.t{animation:in .2s}@keyframes in{from{opacity:0;transform:translateY(8px)}}}
+</style>
+</head>
+<body>
+<div id="app"></div><div id="toast" aria-live="polite"></div><dialog id="dlg"></dialog>
+<script>
+// Backend location. Serve this page from the same XAMPP host (http://localhost/events_booking/frond_end/)
+// because events.php and users.php do not send CORS headers.
+const API = "http://localhost/events_booking/backend";
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "RM " + Number(n).toFixed(2);
+const when = d => d ? new Date(String(d).replace(" ", "T")).toLocaleString("en-MY", {dateStyle: "medium", timeStyle: "short"}) : "";
+const ref = id => "BKG-2026-" + String(id).padStart(4, "0");
+const tone = s => ({published:"ok",Confirmed:"ok",Available:"ok",draft:"warn",Pending:"warn","In Use":"warn",cancelled:"bad",Cancelled:"bad",Unavailable:"bad"})[s] || "neutral";
+const badge = s => `<span class="badge ${tone(s)}">${esc(s)}</span>`;
+let session = JSON.parse(sessionStorage.getItem("session") || "null");
+
+function toast(msg, err) {
+  const t = document.createElement("div"); t.className = "t" + (err ? " e" : ""); t.textContent = msg;
+  $("#toast").append(t); setTimeout(() => t.remove(), 4500);
+}
+
+async function api(path, {method = "GET", body, params} = {}) {
+  const qs = params ? "?" + new URLSearchParams(Object.entries(params).filter(([, v]) => v !== "" && v != null)) : "";
+  let res;
+  try {
+    res = await fetch(`${API}/${path}${qs}`, {
+      method,
+      headers: {"Content-Type": "application/json", ...(session ? {Authorization: "Bearer " + session.token} : {})},
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch { throw new Error("Cannot reach the server. Check that Apache is running and the API address is correct."); }
+  let j = {}; try { j = await res.json(); } catch {}
+  if (res.status === 401 && session && path !== "login.php") { logout(); toast("Your session expired. Sign in again.", true); throw new Error("Session expired"); }
+  if (!res.ok || j.success !== true) {
+    const e = j.errors;
+    const detail = Array.isArray(e) ? e.map(x => x.message).join(" ") : e && typeof e === "object" ? Object.values(e).join(" ") : "";
+    throw new Error(detail || j.message || "Request failed (" + res.status + ")");
+  }
+  return j;
+}
+
+/* ---------- modal helpers ---------- */
+const dlg = $("#dlg");
+function modal(title, body, onSubmit, okText = "Save") {
+  dlg.innerHTML = `<form id="mf"><h2>${esc(title)}</h2><div>${body}</div><p class="err" id="merr" role="alert"></p>
+    <div class="row end"><button type="button" class="btn ghost" id="mx">Cancel</button><button class="btn" id="mok">${esc(okText)}</button></div></form>`;
+  dlg.showModal();
+  $("#mx").onclick = () => dlg.close();
+  $("#mf").onsubmit = async e => {
+    e.preventDefault(); const b = $("#mok"); b.disabled = true; $("#merr").textContent = "";
+    try { await onSubmit(Object.fromEntries(new FormData(e.target))); dlg.close(); }
+    catch (x) { $("#merr").textContent = x.message; }
+    finally { b.disabled = false; }
+  };
+}
+const confirmBox = (title, msg, fn, ok) => modal(title, `<p>${esc(msg)}</p>`, fn, ok);
+
+function pager(el, pg, go) {
+  const t = pg.totalPages ?? pg.total_pages ?? 1;
+  el.innerHTML = t > 1 ? `<div class="pager"><button class="btn ghost" data-p="${pg.page - 1}" ${pg.page <= 1 ? "disabled" : ""}>Previous</button>
+    <span>Page ${pg.page} of ${t}</span><button class="btn ghost" data-p="${pg.page + 1}" ${pg.page >= t ? "disabled" : ""}>Next</button></div>` : "";
+  el.onclick = e => { const p = e.target.dataset.p; if (p) go(+p); };
+}
+const debounce = (fn, ms = 350) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const opts = (list, sel) => list.map(([v, l]) => `<option value="${esc(v)}" ${v === sel ? "selected" : ""}>${esc(l)}</option>`).join("");
+
+/* ---------- auth ---------- */
+function logout() { sessionStorage.removeItem("session"); session = null; location.hash = ""; render(); }
+
+function loginView() {
+  $("#app").innerHTML = `<div class="login"><div class="ticket"><div class="main">
+    <h1>Gate Pass</h1><p class="muted">Sign in to browse events, book tickets and manage venues.</p></div>
+    <form class="stub" id="lf"><div><label for="em">Email</label><input id="em" name="email" type="email" autocomplete="username" required></div>
+    <div><label for="pw">Password</label><input id="pw" name="password" type="password" autocomplete="current-password" required></div>
+    <p class="err" id="le" role="alert"></p><button class="btn">Sign in</button></form></div></div>`;
+  $("#lf").onsubmit = async e => {
+    e.preventDefault(); const b = $("#lf button"); b.disabled = true; $("#le").textContent = "";
+    try {
+      const j = await api("login.php", {method: "POST", body: Object.fromEntries(new FormData(e.target))});
+      const token = j.token || j.data?.token || j.access_token;
+      let user = j.user || j.data?.user || j.data;
+      if (!user?.role && token) {
+        try { user = JSON.parse(decodeURIComponent(escape(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))))); } catch {}
+      }
+      if (!token || !user?.role) throw new Error("Unexpected login response. Open DevTools > Network > login.php and check the Response tab.");
+      session = {token, user, role: user.role};
+      sessionStorage.setItem("session", JSON.stringify(session));
+      location.hash = "#/" + (user.role === "Administrator" ? "bookings" : "events");
+      render();
+    } catch (x) { $("#le").textContent = x.message; b.disabled = false; }
+  };
+}
+
+/* ---------- shell ---------- */
+const NAV = {
+  Customer: [["events", "Events"], ["bookings", "My bookings"]],
+  Organiser: [["events", "My events"], ["bookings", "Bookings"]],
+  Staff: [["events", "Events"], ["bookings", "Bookings"]],
+  Administrator: [["bookings", "Bookings"], ["events", "Events"], ["venues", "Venues"], ["users", "Users"]]
+};
+const VIEWS = {events: eventsView, bookings: bookingsView, venues: venuesView, users: usersView};
+
+function render() {
+  if (!session) return loginView();
+  const nav = NAV[session.role] || NAV.Customer;
+  let page = (location.hash.replace("#/", "") || nav[0][0]);
+  if (!nav.some(n => n[0] === page)) page = nav[0][0];
+  $("#app").innerHTML = `<header class="top"><span class="brand">Gate Pass</span>
+    <nav aria-label="Main">${nav.map(([k, l]) => `<a href="#/${k}" ${k === page ? 'aria-current="page"' : ""}>${l}</a>`).join("")}</nav>
+    <div class="who"><span>${esc(session.user.name)} <small>(${esc(session.role)})</small></span><button class="btn ghost sm" id="lo">Log out</button></div></header>
+    <main id="view"></main>`;
+  $("#lo").onclick = logout;
+  VIEWS[page]($("#view"));
+}
+addEventListener("hashchange", render);
+
+/* ---------- events ---------- */
+async function eventsView(el) {
+  const role = session.role, cust = role === "Customer", mgr = role === "Organiser" || role === "Staff", uid = Number(session.user.user_id);
+  const q = {page: 1, search: "", status: "", sort: "event_date", order: "asc"};
+  el.innerHTML = `<div class="head"><div><h1>${cust ? "Find an event" : "Events"}</h1>
+    <p class="muted">${cust ? "Published events you can book." : mgr ? "Create and manage your events." : "Read-only view of every event."}</p></div>
+    ${mgr ? '<button class="btn" id="new">New event</button>' : ""}</div>
+    <div class="bar"><input type="search" id="s" placeholder="Search title or description" aria-label="Search events">
+    ${cust ? "" : `<select id="st" aria-label="Status"><option value="">All statuses</option>${opts(["draft", "published", "cancelled", "completed"].map(x => [x, x]))}</select>`}
+    <select id="so" aria-label="Sort"><option value="event_date|asc">Soonest first</option><option value="event_date|desc">Latest first</option>
+    <option value="ticket_price|asc">Price: low to high</option><option value="ticket_price|desc">Price: high to low</option><option value="title|asc">Title A–Z</option></select></div>
+    <div id="list" class="grid"></div><div id="pg"></div>`;
+
+  async function load() {
+    const list = $("#list"); list.innerHTML = '<p class="empty">Loading events…</p>';
+    try {
+      const j = await api("events.php", {params: {...q, limit: 9}});
+      list.innerHTML = j.data.length ? j.data.map(card).join("") : '<p class="empty" style="grid-column:1/-1">No events match. Try a different search.</p>';
+      pager($("#pg"), j.pagination, p => { q.page = p; load(); });
+      window._ev = Object.fromEntries(j.data.map(x => [x.event_id, x]));
+    } catch (x) { list.innerHTML = `<p class="empty err" style="grid-column:1/-1">${esc(x.message)}</p>`; }
+  }
+  function card(ev) {
+    const left = ev.available_tickets, pct = ev.total_tickets ? Math.round(left / ev.total_tickets * 100) : 0;
+    const canEdit = mgr && (role === "Staff" || Number(ev.organiser_id) === uid);
+    const acts = cust ? `<button class="btn" data-a="book" data-id="${ev.event_id}" ${left < 1 ? "disabled" : ""}>${left < 1 ? "Sold out" : "Book tickets"}</button>`
+      : canEdit ? `<button class="btn ghost sm" data-a="edit" data-id="${ev.event_id}">Edit</button><button class="btn danger sm" data-a="del" data-id="${ev.event_id}">Delete</button>` : "";
+    return `<article class="ticket"><div class="main">${cust ? "" : badge(ev.status) + " "}<h3>${esc(ev.title)}</h3>
+      <p class="muted">${esc(ev.venue_name)}</p><p>${when(ev.event_date)}</p>
+      ${ev.description ? `<p class="muted">${esc(ev.description)}</p>` : ""}</div>
+      <div class="stub"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="price">${money(ev.ticket_price)}</span><small>per ticket</small></div>
+      <div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div><small>${left} of ${ev.total_tickets} tickets left</small>
+      ${acts ? `<div class="row">${acts}</div>` : ""}</div></article>`;
+  }
+
+  $("#s").oninput = debounce(e => { q.search = e.target.value; q.page = 1; load(); });
+  if ($("#st")) $("#st").onchange = e => { q.status = e.target.value; q.page = 1; load(); };
+  $("#so").onchange = e => { [q.sort, q.order] = e.target.value.split("|"); q.page = 1; load(); };
+  if ($("#new")) $("#new").onclick = () => eventForm(null, load);
+  $("#list").onclick = e => {
+    const b = e.target.closest("button[data-a]"); if (!b) return;
+    const ev = window._ev[b.dataset.id];
+    if (b.dataset.a === "book") bookForm(ev, load);
+    if (b.dataset.a === "edit") eventForm(ev, load);
+    if (b.dataset.a === "del") confirmBox("Delete event", `Delete "${ev.title}"? This cannot be undone.`, async () => {
+      await api("events.php", {method: "DELETE", params: {id: ev.event_id}}); toast("Event deleted"); load();
+    }, "Delete event");
+  };
+  load();
+}
+
+function bookForm(ev, reload) {
+  const max = Math.min(10, ev.available_tickets);
+  modal("Book " + ev.title, `<p class="muted">${esc(ev.venue_name)} · ${when(ev.event_date)}</p>
+    <label for="qty">Number of tickets (1–${max})</label><input id="qty" name="quantity" type="number" min="1" max="${max}" value="1" required>
+    <p style="margin-top:1rem">Total: <strong id="tot">${money(ev.ticket_price)}</strong></p>`, async d => {
+    const j = await api("bookings.php", {method: "POST", body: {event_id: ev.event_id, quantity: Number(d.quantity)}});
+    toast(`Booked ${ref(j.booking_id)}. ` + (j.email_sent ? "Confirmation email sent." : "The confirmation email could not be sent."), !j.email_sent);
+    reload();
+  }, "Confirm and pay");
+  $("#qty").oninput = e => $("#tot").textContent = money(ev.ticket_price * (Number(e.target.value) || 0));
+}
+
+async function eventForm(ev, reload) {
+  let venues = [];
+  try { venues = (await api("venues.php", {params: {limit: 100}})).data; } catch (x) { return toast(x.message, true); }
+  const vo = venues.map(v => `<option value="${v.venue_id}" ${ev && Number(ev.venue_id) === v.venue_id ? "selected" : ""} ${v.status !== "Available" && !(ev && Number(ev.venue_id) === v.venue_id) ? "disabled" : ""}>${esc(v.venue_name)} (${v.capacity} seats${v.status !== "Available" ? ", " + v.status : ""})</option>`).join("");
+  modal(ev ? "Edit event" : "New event", `
+    <label for="t">Title</label><input id="t" name="title" minlength="3" maxlength="150" required value="${esc(ev?.title)}">
+    <label for="d">Description</label><textarea id="d" name="description" rows="2">${esc(ev?.description)}</textarea>
+    <label for="v">Venue</label><select id="v" name="venue_id" required>${vo}</select>
+    <label for="dt">Date and time</label><input id="dt" name="event_date" type="datetime-local" required value="${ev ? String(ev.event_date).replace(" ", "T").slice(0, 16) : ""}">
+    <div class="two"><div><label for="p">Ticket price (RM)</label><input id="p" name="ticket_price" type="number" min="0" step="0.01" required value="${esc(ev?.ticket_price)}"></div>
+    <div><label for="n">Total tickets</label><input id="n" name="total_tickets" type="number" min="1" required value="${esc(ev?.total_tickets)}"></div></div>
+    <label for="s2">Status</label><select id="s2" name="status">${opts(["draft", "published", "cancelled", "completed"].map(x => [x, x]), ev?.status || "draft")}</select>`,
+  async d => {
+    const body = {...d, venue_id: Number(d.venue_id), total_tickets: Number(d.total_tickets), event_date: d.event_date.replace("T", " ") + ":00"};
+    await api("events.php", {method: ev ? "PUT" : "POST", params: ev ? {id: ev.event_id} : null, body});
+    toast(ev ? "Event updated" : "Event created"); reload();
+  }, ev ? "Save changes" : "Create event");
+}
+
+/* ---------- bookings ---------- */
+function bookingsView(el) {
+  const role = session.role, cust = role === "Customer", canCancel = cust || role === "Administrator";
+  const q = {page: 1, search: "", status: ""};
+  el.innerHTML = `<div class="head"><div><h1>${cust ? "My bookings" : "Bookings"}</h1><p class="muted">${cust ? "Your tickets, newest first." : role === "Organiser" ? "Bookings for your events." : "All booking records."}</p></div></div>
+    <div class="bar"><input type="search" id="s" placeholder="Search by event or booking number" aria-label="Search bookings">
+    <select id="st" aria-label="Status"><option value="">All statuses</option>${opts(["Pending", "Confirmed", "Cancelled"].map(x => [x, x]))}</select></div>
+    <div class="tablewrap"><table><thead><tr><th>Booking</th><th>Event</th>${cust ? "" : "<th>Customer</th>"}<th>Tickets</th><th>Total</th><th>Status</th>${canCancel ? "<th></th>" : ""}</tr></thead><tbody id="tb"></tbody></table></div><div id="pg"></div>`;
+  const cols = 6 + (cust ? 0 : 1) - 0 + (canCancel ? 1 : 0) - 1;
+  async function load() {
+    const tb = $("#tb"); tb.innerHTML = `<tr><td colspan="8" class="empty">Loading bookings…</td></tr>`;
+    try {
+      const j = await api("bookings.php", {params: {...q, limit: 10}});
+      tb.innerHTML = j.data.length ? j.data.map(b => `<tr><td><strong>${ref(b.booking_id)}</strong><br><small>${when(b.booking_date + "Z")}</small></td>
+        <td>${esc(b.event_name || "Deleted event")}<br><small>${when(b.event_date)}</small></td>
+        ${cust ? "" : `<td>${esc(b.customer_name)}<br><small>${esc(b.customer_email)}</small></td>`}
+        <td>${b.quantity}</td><td>${money(b.total_price)}</td><td>${badge(b.booking_status)}</td>
+        ${canCancel ? `<td>${b.booking_status !== "Cancelled" ? `<button class="btn danger sm" data-id="${b.booking_id}">Cancel</button>` : ""}</td>` : ""}</tr>`).join("")
+        : `<tr><td colspan="8" class="empty">${cust ? "No bookings yet. Browse events to book your first ticket." : "No bookings found."}</td></tr>`;
+      pager($("#pg"), j.pagination, p => { q.page = p; load(); });
+    } catch (x) { tb.innerHTML = `<tr><td colspan="8" class="empty err">${esc(x.message)}</td></tr>`; }
+  }
+  $("#s").oninput = debounce(e => { q.search = e.target.value; q.page = 1; load(); });
+  $("#st").onchange = e => { q.status = e.target.value; q.page = 1; load(); };
+  $("#tb").onclick = e => {
+    const b = e.target.closest("button[data-id]"); if (!b) return;
+    confirmBox("Cancel booking", `Cancel ${ref(b.dataset.id)}? The tickets go back on sale.`, async () => {
+      const j = await api("bookings.php", {method: "PUT", body: {booking_id: Number(b.dataset.id), booking_status: "Cancelled"}});
+      toast("Booking cancelled. " + (j.email_sent ? "Email sent." : "The cancellation email could not be sent."), !j.email_sent); load();
+    }, "Cancel booking");
+  };
+  load();
+}
+
+/* ---------- venues (administrator) ---------- */
+function venuesView(el) {
+  const q = {page: 1, search: "", status: ""};
+  el.innerHTML = `<div class="head"><div><h1>Venues</h1><p class="muted">Venues are marked In Use automatically while an active event is assigned.</p></div><button class="btn" id="new">Add venue</button></div>
+    <div class="bar"><input type="search" id="s" placeholder="Search name or location" aria-label="Search venues">
+    <select id="st" aria-label="Status"><option value="">All statuses</option>${opts(["Available", "In Use", "Unavailable"].map(x => [x, x]))}</select></div>
+    <div class="tablewrap"><table><thead><tr><th>Venue</th><th>Location</th><th>Capacity</th><th>Status</th><th></th></tr></thead><tbody id="tb"></tbody></table></div><div id="pg"></div>`;
+  let rows = {};
+  async function load() {
+    const tb = $("#tb"); tb.innerHTML = '<tr><td colspan="5" class="empty">Loading venues…</td></tr>';
+    try {
+      const j = await api("venues.php", {params: {...q, limit: 10}});
+      rows = Object.fromEntries(j.data.map(v => [v.venue_id, v]));
+      tb.innerHTML = j.data.length ? j.data.map(v => `<tr><td><strong>${esc(v.venue_name)}</strong></td><td>${esc(v.location)}</td><td>${v.capacity.toLocaleString()}</td><td>${badge(v.status)}</td>
+        <td class="row end"><button class="btn ghost sm" data-a="edit" data-id="${v.venue_id}">Edit</button><button class="btn danger sm" data-a="del" data-id="${v.venue_id}">Delete</button></td></tr>`).join("")
+        : '<tr><td colspan="5" class="empty">No venues found.</td></tr>';
+      pager($("#pg"), j.pagination, p => { q.page = p; load(); });
+    } catch (x) { tb.innerHTML = `<tr><td colspan="5" class="empty err">${esc(x.message)}</td></tr>`; }
+  }
+  function form(v) {
+    modal(v ? "Edit venue" : "Add venue", `
+      <label for="n">Venue name</label><input id="n" name="venue_name" maxlength="100" required value="${esc(v?.venue_name)}">
+      <label for="l">Location</label><input id="l" name="location" maxlength="255" required value="${esc(v?.location)}">
+      <div class="two"><div><label for="c">Capacity</label><input id="c" name="capacity" type="number" min="1" required value="${esc(v?.capacity)}"></div>
+      <div><label for="s3">Status</label><select id="s3" name="status">${opts(["Available", "In Use", "Unavailable"].map(x => [x, x]), v?.status || "Available")}</select></div></div>`,
+    async d => {
+      await api("venues.php", {method: v ? "PUT" : "POST", params: v ? {id: v.venue_id} : null, body: {...d, capacity: Number(d.capacity)}});
+      toast(v ? "Venue updated" : "Venue added"); load();
+    }, v ? "Save changes" : "Add venue");
+  }
+  $("#new").onclick = () => form(null);
+  $("#s").oninput = debounce(e => { q.search = e.target.value; q.page = 1; load(); });
+  $("#st").onchange = e => { q.status = e.target.value; q.page = 1; load(); };
+  $("#tb").onclick = e => {
+    const b = e.target.closest("button[data-a]"); if (!b) return; const v = rows[b.dataset.id];
+    if (b.dataset.a === "edit") form(v);
+    else confirmBox("Delete venue", `Delete ${v.venue_name}? Venues with events cannot be deleted.`, async () => {
+      await api("venues.php", {method: "DELETE", params: {id: v.venue_id}}); toast("Venue deleted"); load();
+    }, "Delete venue");
+  };
+  load();
+}
+
+/* ---------- users (administrator) ---------- */
+function usersView(el) {
+  const ROLES = ["Administrator", "Organiser", "Staff", "Customer"];
+  el.innerHTML = `<div class="head"><div><h1>Users</h1><p class="muted">Create accounts and set roles.</p></div><button class="btn" id="new">Add user</button></div>
+    <div class="bar"><input type="search" id="s" placeholder="Filter by name, email or role" aria-label="Filter users"></div>
+    <div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
+  let all = [];
+  const draw = () => {
+    const f = $("#s").value.toLowerCase();
+    const list = all.filter(u => [u.name, u.email, u.role].join(" ").toLowerCase().includes(f));
+    $("#tb").innerHTML = list.length ? list.map(u => `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td>${esc(u.role)}</td>
+      <td class="row end"><button class="btn ghost sm" data-a="edit" data-id="${u.user_id}">Edit</button>
+      ${Number(u.user_id) === Number(session.user.user_id) ? "" : `<button class="btn danger sm" data-a="del" data-id="${u.user_id}">Delete</button>`}</td></tr>`).join("")
+      : '<tr><td colspan="4" class="empty">No users match.</td></tr>';
+  };
+  async function load() {
+    try { all = (await api("users.php")).data; draw(); }
+    catch (x) { $("#tb").innerHTML = `<tr><td colspan="4" class="empty err">${esc(x.message)}</td></tr>`; }
+  }
+  function form(u) {
+    modal(u ? "Edit user" : "Add user", `
+      <label for="n">Name</label><input id="n" name="name" maxlength="100" required value="${esc(u?.name)}">
+      <label for="e">Email</label><input id="e" name="email" type="email" required value="${esc(u?.email)}">
+      <label for="r">Role</label><select id="r" name="role">${opts(ROLES.map(x => [x, x]), u?.role || "Customer")}</select>
+      <label for="p">${u ? "New password (leave blank to keep)" : "Password (min 6 characters)"}</label><input id="p" name="password" type="password" minlength="6" autocomplete="new-password" ${u ? "" : "required"}>`,
+    async d => {
+      if (u && !d.password) delete d.password;
+      await api("users.php", {method: u ? "PUT" : "POST", params: u ? {id: u.user_id} : null, body: d});
+      toast(u ? "User updated" : "User added"); load();
+    }, u ? "Save changes" : "Add user");
+  }
+  $("#new").onclick = () => form(null);
+  $("#s").oninput = draw;
+  $("#tb").onclick = e => {
+    const b = e.target.closest("button[data-a]"); if (!b) return; const u = all.find(x => String(x.user_id) === b.dataset.id);
+    if (b.dataset.a === "edit") form(u);
+    else confirmBox("Delete user", `Delete ${u.name}? Users with events or bookings cannot be deleted.`, async () => {
+      await api("users.php", {method: "DELETE", params: {id: u.user_id}}); toast("User deleted"); load();
+    }, "Delete user");
+  };
+  load();
+}
+
+render();
+</script>
+</body>
+</html>
